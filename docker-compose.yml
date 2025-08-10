@@ -2,7 +2,12 @@ version: '3.8'
 
 services:
   auth-service:
-    build: .
+    build: 
+      context: .
+      # 使用构建缓存
+      cache_from:
+        - auth-service:cache
+    image: auth-service:latest
     container_name: auth-service
     environment:
       - DB_HOST=mysql
@@ -15,9 +20,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    command: >
-      sh -c "alembic upgrade head &&
-             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    # 使用健康检查
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -25,7 +28,7 @@ services:
       retries: 3
 
   mysql:
-    image: mysql:8.0
+    image: mysql:8.0-alpine  # 使用更小的Alpine镜像
     container_name: auth-mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
