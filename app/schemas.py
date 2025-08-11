@@ -1,4 +1,7 @@
+# app/schemas.py
+from datetime import datetime
 from pydantic import BaseModel, EmailStr
+from pydantic import ConfigDict  # v2
 
 class UserCreate(BaseModel):
     username: str
@@ -12,11 +15,12 @@ class UserLogin(BaseModel):
 class UserResponse(BaseModel):
     id: int
     username: str
-    email: str
-    created_at: str
-    
-    class Config:
-        orm_mode = True
+    email: EmailStr
+    created_at: datetime
+    updated_at: datetime | None = None
+
+    # v2: 代替 orm_mode=True
+    model_config = ConfigDict(from_attributes=True)
 
 class Token(BaseModel):
     access_token: str
