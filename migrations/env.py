@@ -3,7 +3,7 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 import os
 import sys
-
+from app.database import SQLALCHEMY_DATABASE_URL  # ← 新增
 sys.path.append(os.getcwd())
 
 from app.models import Base
@@ -13,7 +13,7 @@ config = context.config
 fileConfig(config.config_file_name)
 
 # 使用配置中的数据库URL
-config.set_main_option("sqlalchemy.url", settings.SQLALCHEMY_DATABASE_URL)
+config.set_main_option("sqlalchemy.url", SQLALCHEMY_DATABASE_URL)  # ← 改这一行
 
 target_metadata = Base.metadata
 

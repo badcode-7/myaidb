@@ -1,19 +1,28 @@
-from pydantic import BaseSettings
+# app/config.py
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 
 class Settings(BaseSettings):
-    # 数据库配置
-    db_host: str = "localhost"
-    db_port: int = 3306
-    db_user: str = "auth_user"
-    db_password: str = "auth_password"
-    db_name: str = "auth_db"
-    
+    # 读取 .env；忽略额外变量，避免报错
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    # 数据库配置（使用 env 名作为校验别名，兼容你 .env/compose）
+    db_host: str = Field("localhost", validation_alias="DB_HOST")
+    db_port: int = Field(3306, validation_alias="DB_PORT")
+    db_user: str = Field("auth_user", validation_alias="DB_USER")
+    db_password: str = Field("auth_password", validation_alias="DB_PASSWORD")
+    db_name: str = Field("auth_db", validation_alias="DB_NAME")
+
     # JWT配置
-    secret_key: str = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-    algorithm: str = "HS256"
-    access_token_expire_minutes: int = 30
-    
-    class Config:
-        env_file = ".env"
+    secret_key: str = Field("change-me", validation_alias="SECRET_KEY")
+    algorithm: str = Field("HS256", validation_alias="ALGORITHM")
+    access_token_expire_minutes: int = Field(30, validation_alias="ACCESS_TOKEN_EXPIRE_MINUTES")
+
+    @property
+    def sqlalchemy_database_url(self) -> str:
+        return (
+            f"mysql+pymysql://{self.db_user}:{self.db_password}"
+            f"@{self.db_host}:{self.db_port}/{self.db_name}"
+        )
 
 settings = Settings()
