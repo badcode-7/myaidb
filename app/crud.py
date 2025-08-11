@@ -1,6 +1,7 @@
+# app/crud.py
 from sqlalchemy.orm import Session
 from . import models
-from .auth import get_password_hash
+from .security import get_password_hash  # ← 改这里
 
 def get_user_by_username(db: Session, username: str):
     return db.query(models.User).filter(models.User.username == username).first()

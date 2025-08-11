@@ -1,30 +1,22 @@
 # app/auth.py
-from passlib.context import CryptContext
-from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from .config import settings
 from .database import get_db
-from .crud import get_user_by_username  # ← 需要显式导入
+from .security import verify_password, get_password_hash   # 如需散列也从这里取
+from .crud import get_user_by_username                     # ← 现在不会循环了
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")  # 登录路径
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def create_access_token(data: dict):
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
-    return encoded_jwt
+    return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
 
 def authenticate_user(db: Session, username: str, password: str):
     user = get_user_by_username(db, username)
