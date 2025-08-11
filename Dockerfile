@@ -1,5 +1,8 @@
-# builder
 FROM docker.m.daocloud.io/library/python:3.10-slim AS builder
+
+# 切换到阿里源
+RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list && \
+    sed -i 's@security.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list
 
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple \
  && pip config set global.trusted-host pypi.tuna.tsinghua.edu.cn
@@ -14,8 +17,12 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt .
 RUN pip install --no-cache-dir --compile -r requirements.txt
 
-# runtime
+# -------------------
 FROM docker.m.daocloud.io/library/python:3.10-slim
+
+# 切换到阿里源
+RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list && \
+    sed -i 's@security.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     default-libmysqlclient-dev curl \
