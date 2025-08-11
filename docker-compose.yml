@@ -22,7 +22,7 @@ services:
       retries: 3
 
   mysql:
-    image: docker.m.daocloud.io/library/mysql:8.0-alpine
+    image: docker.m.daocloud.io/library/mysql:8.0
     container_name: auth-mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
