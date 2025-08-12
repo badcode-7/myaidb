@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from .config import settings
 from .database import get_db
 from .security import verify_password, get_password_hash   # 如需散列也从这里取
+from . import schemas
 from .crud import get_user_by_username                     # ← 现在不会循环了
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
