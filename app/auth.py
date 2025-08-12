@@ -12,10 +12,13 @@ from .crud import get_user_by_username                     # ← 现在不会循
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-def create_access_token(data: dict):
+def create_access_token(data: dict, is_admin: bool = False):
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(minutes=settings.access_token_expire_minutes)
-    to_encode.update({"exp": expire})
+    to_encode.update({
+        "exp": expire,
+        "is_admin": is_admin
+    })
     return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
 
 def authenticate_user(db: Session, username: str, password: str):
@@ -45,3 +48,13 @@ def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+def get_current_admin_user(
+    current_user: schemas.UserResponse = Depends(get_current_user),
+):
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="需要管理员权限"
+        )
+    return current_user

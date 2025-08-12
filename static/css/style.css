@@ -1,0 +1,62 @@
+/* 基础样式 */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 登录/注册页面样式 */
+#authTabs {
+    margin-bottom: 0;
+}
+
+.tab-content {
+    background-color: white;
+    border-color: #dee2e6;
+}
+
+/* 表格样式 */
+.table {
+    margin-top: 20px;
+    background-color: white;
+}
+
+.table th {
+    background-color: #f8f9fa;
+}
+
+/* 表单元素样式 */
+.form-control {
+    margin-bottom: 15px;
+}
+
+.form-check-input {
+    cursor: pointer;
+}
+
+/* 按钮样式 */
+.btn {
+    margin-right: 10px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+}
+
+/* 导航栏样式 */
+.navbar {
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}

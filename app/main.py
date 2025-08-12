@@ -51,8 +51,43 @@ def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token = auth.create_access_token(data={"sub": user.username})
+    access_token = auth.create_access_token(
+        data={"sub": user.username},
+        is_admin=user.is_admin
+    )
     return {"access_token": access_token, "token_type": "bearer"}
+
+@app.put("/users/{user_id}/vip", response_model=schemas.UserResponse)
+def update_vip_status(
+    user_id: int,
+    vip_status: schemas.UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: schemas.UserResponse = Depends(auth.get_current_admin_user)
+):
+    updated_user = crud.update_user_vip_status(db, user_id, vip_status.is_vip)
+    if not updated_user:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    return updated_user
+
+@app.get("/admin/users", response_model=List[schemas.AdminUserResponse])
+def get_users(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: schemas.UserResponse = Depends(auth.get_current_admin_user)
+):
+    users = crud.get_all_users(db, skip=skip, limit=limit)
+    return users
+
+@app.delete("/admin/users/{user_id}")
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: schemas.UserResponse = Depends(auth.get_current_admin_user)
+):
+    if not crud.delete_user(db, user_id):
+        raise HTTPException(status_code=404, detail="用户不存在")
+    return {"message": "用户删除成功"}
 
 @app.get("/users/me", response_model=schemas.UserResponse)
 def read_current_user(current_user: schemas.UserResponse = Depends(get_current_active_user)):
