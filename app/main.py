@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from . import crud, schemas, models, auth
 from .database import engine, get_db
@@ -23,6 +24,10 @@ app.add_middleware(
 
 # 创建数据库表
 models.Base.metadata.create_all(bind=engine)
+
+# 挂载静态文件
+app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/", StaticFiles(directory="templates", html=True), name="templates")
 
 @app.post("/register", response_model=schemas.UserResponse)
 def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
