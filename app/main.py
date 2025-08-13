@@ -59,6 +59,33 @@ def login_for_access_token(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+@app.post("/aikefu/login", response_model=schemas.Token)
+def aikefu_login(
+    form_data: schemas.UserLogin, 
+    db: Session = Depends(get_db)
+):
+    user = auth.authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="用户名或密码错误",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # 专用于AI客服的VIP验证
+    if not user.is_vip:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="非VIP用户无法登录AI客服，请升级VIP会员",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    access_token = auth.create_access_token(
+        data={"sub": user.username},
+        is_admin=user.is_admin
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
 @app.put("/users/{user_id}/vip", response_model=schemas.UserResponse)
 def update_vip_status(
     user_id: int,
