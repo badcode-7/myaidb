@@ -25,10 +25,6 @@ app.add_middleware(
 # 创建数据库表
 models.Base.metadata.create_all(bind=engine)
 
-# 挂载静态文件
-app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/", StaticFiles(directory="templates", html=True), name="templates")
-
 @app.post("/register", response_model=schemas.UserResponse)
 def register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     # 检查用户名是否已存在
@@ -102,3 +98,7 @@ def read_current_user(current_user: schemas.UserResponse = Depends(get_current_a
 @app.get("/health")
 def health_check():
     return {"status": "ok", "service": "user-auth"}
+
+# 挂载静态文件 (放在API路由之后)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/", StaticFiles(directory="templates", html=True), name="templates")
