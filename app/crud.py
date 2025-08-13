@@ -2,10 +2,10 @@
 from typing import List
 from sqlalchemy.orm import Session
 from . import models, schemas
-from .security import get_password_hash
+from . import models, schemas
 
-def get_user_by_username(db: Session, username: str):
-    return db.query(models.User).filter(models.User.username == username).first()
+def get_user_by_logto_id(db: Session, logto_user_id: str):
+    return db.query(models.User).filter(models.User.logto_user_id == logto_user_id).first()
 
 def create_user(db: Session, user: models.User):
     db.add(user)
@@ -14,11 +14,9 @@ def create_user(db: Session, user: models.User):
     return user
 
 def create_new_user(db: Session, user_data: dict):
-    hashed_password = get_password_hash(user_data["password"])
     db_user = models.User(
-        username=user_data["username"],
-        email=user_data["email"],
-        hashed_password=hashed_password
+        logto_user_id=user_data["logto_user_id"],
+        is_vip=user_data.get("is_vip", False)
     )
     return create_user(db, db_user)
 

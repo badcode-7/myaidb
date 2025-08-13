@@ -13,10 +13,10 @@ class Settings(BaseSettings):
     db_password: str = Field("auth_password", validation_alias="DB_PASSWORD")
     db_name: str = Field("auth_db", validation_alias="DB_NAME")
 
-    # JWT配置
-    secret_key: str = Field("change-me", validation_alias="SECRET_KEY")
-    algorithm: str = Field("HS256", validation_alias="ALGORITHM")
-    access_token_expire_minutes: int = Field(30, validation_alias="ACCESS_TOKEN_EXPIRE_MINUTES")
+    # Logto配置
+    logto_endpoint: str = Field("http://localhost:3001", validation_alias="LOGTO_ENDPOINT")
+    logto_app_id: str = Field("", validation_alias="LOGTO_APP_ID")
+    logto_app_secret: str = Field("", validation_alias="LOGTO_APP_SECRET")
 
     @property
     def sqlalchemy_database_url(self) -> str:
