@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  logto:
+    image: ghcr.io/logto-io/logto
+    ports:
+      - "3001:3001"  # Core服务端口
+      - "3002:3002"  # 管理控制台端口
+    environment:
+      - DB_URL=postgres://logto:logto@logto-db/logto
+      - REDIS_URL=redis://redis
+      - ENDPOINT=http://localhost:3001
+    depends_on:
+      - logto-db
+      - redis
+    networks:
+      - logto-net
+
+  logto-db:
+    image: postgres:12
+    environment:
+      POSTGRES_USER: logto
+      POSTGRES_PASSWORD: logto
+      POSTGRES_DB: logto
+    volumes:
+      - logto-data:/var/lib/postgresql/data
+    networks:
+      - logto-net
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis-data:/data
+    networks:
+      - logto-net
+
+  app-backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - LOGTO_ENDPOINT=http://logto:3001
+      - LOGTO_APP_ID=your-business-app-id
+      - LOGTO_APP_SECRET=your-business-app-secret
+    depends_on:
+      - logto
+    networks:
+      - logto-net
+
+  app-frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - app-backend
+    networks:
+      - logto-net
+
+volumes:
+  logto-data:
+  redis-data:
+
+networks:
+  logto-net:
+    driver: bridge
